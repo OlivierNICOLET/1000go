@@ -43,11 +43,7 @@ class Joueur{
     }
 
     //
-    jouer(index){
-        return this.cartes[index];
-    }
-
-    defausser(index){
+    takeCard(index){
         return this.cartes[index];
     }
 }
