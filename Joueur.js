@@ -3,7 +3,7 @@ class Joueur{
         this.id = id_;
         this.pseudo = pseudo_;
         this.etat = new Etat();
-        this.cartes;
+        this.cartes = [];
         this.idNext = idNext_;
         this.comptePoints = 0;
     }
