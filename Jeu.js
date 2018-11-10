@@ -41,7 +41,7 @@ class Jeu{
         /////////////DISTRIBUTION CARTES////////////////////
         for(var i=0; i < this.nJoueurs; i++){
             for(var j=0; j < this.nCartesMain; j++){
-                this.distributeCard(this.randCard(this.pioche), this.listeJoueurs[i])
+                this.distributeCard(this.listeJoueurs[i]);
             }
             console.log(this.listeJoueurs[i].cartes);
             console.log(this.pioche.length);
@@ -76,7 +76,7 @@ class Jeu{
         return randCard;
     }
 
-    distributeCard(card, joueur){
-        joueur.cartes.push(card);
+    distributeCard(joueur){
+        joueur.cartes.push(this.randCard());
     }
 }

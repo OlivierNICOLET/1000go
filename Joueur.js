@@ -43,7 +43,17 @@ class Joueur{
     }
 
     //
-    takeCard(index){
-        return this.cartes[index];
+    playCard(index){
+        var carte = this.cartes[index];
+        this.cartes[index] = null;
+        var newCartes = [];
+        for(var i=0; i < this.cartes.length; i++){
+            if(this.cartes[i]){
+                newCartes.push(this.cartes[i]);
+            }
+        }
+
+        this.cartes = newCartes;
+        return 
     }
 }
