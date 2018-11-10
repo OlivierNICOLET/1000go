@@ -1,3 +1,11 @@
+EtatTour = {
+    "Transition" : 0,
+    "Pioche" : 1,
+    "Pose" : 2,
+    "FinTour" : 3,    
+}
+
+
 class Jeu{
 
 
@@ -8,6 +16,7 @@ class Jeu{
         this.nJoueurs = 6;
         this.joueurActif = 0;
         this.nCartesMain = 6;
+        this.jeuEnCours = true;
     }
 
 
@@ -43,10 +52,13 @@ class Jeu{
             for(var j=0; j < this.nCartesMain; j++){
                 this.distributeCard(this.listeJoueurs[i]);
             }
-            console.log(this.listeJoueurs[i].cartes);
-            console.log(this.pioche.length);
         }
 
+        /////////////DEROULEMENT JEU//////////////////////
+        while(this.jeuEnCours){
+            this.tour(this.listeJoueurs[this.joueurActif]);
+            this.changementJoueur();
+        }
         
     }
 
@@ -55,8 +67,51 @@ class Jeu{
         this.joueurActif = this.listeJoueurs[this.joueurActif].idNext;
     }
 
-    tour(joueur){
+    
 
+    tour(joueur){
+        var etat = EtatTour.Transition;
+        switch(etat){
+            case EtatTour.Transition:
+                alert(`Tour de ${joueur.getPseudo()} \n`);                    
+                etat = EtatTour.Pioche;
+                
+            case EtatTour.Pioche:
+                etat = EtatTour.Pose;
+            case EtatTour.Pose:
+                var card = prompt(`${this.affichagePromptEtatTour(joueur)}`);
+                etat = EtatTour.FinTour;
+            case EtatTour.FinTour:
+                etat = null;
+                break;
+        }
+        console.log("fin switch");
+    }
+    //
+    affichagePromptEtatTour(joueur){
+        return this.rappelPoints() + this.askJoueurForCard(joueur);
+        
+    }
+
+    //
+    askJoueurForCard(joueur){
+        var listeCartes = "";
+        listeCartes += `Veuilley choisir une carte (0,1,...,${joueur.cartes.length}) parmis: \n`;
+        for(var i=0;i<joueur.cartes.length;i++){
+            listeCartes += `${i} : ${joueur.cartes[i].getNom()} \n`;
+        }
+
+        return listeCartes;
+    }
+
+    rappelPoints(){
+        var rappel = "";
+        rappel += "Rappel des points: \n";
+        this.listeJoueurs.forEach((joueur) => {
+            rappel += `${joueur.getPseudo()} : ${joueur.getPoints()} Go \n`;
+        });
+
+        return rappel;
     }
 
     //

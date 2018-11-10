@@ -35,7 +35,7 @@ class Joueur{
 
     //
     getPoints(){
-        return this.comptePoint;
+        return this.comptePoints;
     }
 
     addPoints(points){
@@ -44,7 +44,7 @@ class Joueur{
 
     //
     playCard(index){
-        var carte = this.cartes[index];
+        var cartePlayed = this.cartes[index];
         this.cartes[index] = null;
         var newCartes = [];
         for(var i=0; i < this.cartes.length; i++){
@@ -54,6 +54,6 @@ class Joueur{
         }
 
         this.cartes = newCartes;
-        return 
+        return cartePlayed;
     }
 }
