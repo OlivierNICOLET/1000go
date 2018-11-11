@@ -17,9 +17,10 @@ class Jeu{
         this.nJoueurs = 6;
         this.joueurActif = 0;
         this.nCartesMain = 6;
-        this.scoreVictoire = 100;
+        this.scoreVictoire = 1000;
         this.jeuEnCours = true;
         this.gagnant = "";
+        this.nomsJoueurs = [];
     }
 
 
@@ -34,14 +35,19 @@ class Jeu{
         */
 
         ///////////GENERATION JOUEURS////////////////////
-        var nomsJoueurs = ["Toto","Tqtq","Trtr","Tutu","Titi","Tvtv"];        
+        this.nJoueurs = prompt("Veuillez entrer le nombre de joueurs (EN CHIFFRE STP): \n");
+
+        for (var i = 0; i < this.nJoueurs; i++){
+            this.nomsJoueurs.push(prompt(`Veuillez entrer le nom du joueur ${i}\n`));
+        }
+                
 
         for(var i=0; i < this.nJoueurs; i++){
             if(i == this.nJoueurs - 1){
-                this.listeJoueurs.push(new Joueur(nomsJoueurs[i], i, 0));
+                this.listeJoueurs.push(new Joueur(this.nomsJoueurs[i], i, 0));
                 break;
             }
-            this.listeJoueurs.push(new Joueur(nomsJoueurs[i], i, i+1));            
+            this.listeJoueurs.push(new Joueur(this.nomsJoueurs[i], i, i+1));            
         }
 
         /*
@@ -163,6 +169,9 @@ class Jeu{
     //
     rappelPoints(){
         var liste = "";
+
+        liste += `Scores et états:\n`;
+
         for(var i=0; i < this.nJoueurs; i++){
             liste += `${this.listeJoueurs[i].id} : ${this.listeJoueurs[i].getPseudo()} : ${this.listeJoueurs[i].getPoints()} Go${this.listeJoueurs[i].etat.showEtat()}`;
             liste += `\n`;
@@ -220,10 +229,10 @@ class Jeu{
     }
 
     //
-    choseTarget(){
+    choseTarget(card){
         var noPlayerChosen = true;
         while(noPlayerChosen){
-            var index = prompt(`Choisissez le joueur cible: \n ${this.rappelPoints()}`);
+            var index = prompt(`Choisissez le joueur cible de ${card.getNom()}: \n ${this.rappelPoints()}`);
             if(index && this.listeJoueurs[index]){                 
                 noPlayerChosen = true;
                 return this.listeJoueurs[index];
@@ -261,7 +270,8 @@ class Jeu{
     }
 
     play(joueur, index){
-        switch(joueur.cartes[index].getType()){
+        var carte = joueur.cartes[index];
+        switch(carte.getType()){
             case TypeEnum.Data25:
                 joueur.addPoints(25);
                 joueur.playCard(index);
@@ -283,82 +293,82 @@ class Jeu{
                 joueur.playCard(index);
                 break;
             case TypeEnum.PanneReveil:                
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 if(!target.etat.isCoucheTot()){
                     target.etat.setPanneReveil(true);
                     joueur.playCard(index);
                 }
                 break;
             case TypeEnum.TravauxTram:
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 if(!target.etat.isHelicotere()){
                     target.etat.setTravauxTram(true);
                     joueur.playCard(index);
                 }
                 break;
             case TypeEnum.Maladie:
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 if(!target.etat.isSanteDeFer()){
                     target.etat.setMaladie(true);
                     joueur.playCard(index);
                 }
                 break;
             case TypeEnum.ReseauDown:
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 if(!target.etat.isProxy()){
                     target.etat.setReseauUp(false);
                     joueur.playCard(index);
                 }
                 break;
             case TypeEnum.FeteDeTrop:
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 if(!target.etat.isProxy()){
                     target.etat.setFeteDeTrop(true);
                     joueur.playCard(index);
                 }
                 break;
             case TypeEnum.PileAto: 
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 target.etat.setPanneReveil(false); 
                 joueur.playCard(index);
                 break;
             case TypeEnum.BusMa:
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 target.etat.setTravauxTram(false);
                 joueur.playCard(index);
                 break;
             case TypeEnum.Docteur:
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 target.etat.setMaladie(false);
                 joueur.playCard(index);
                 break;
             case TypeEnum.ReseauUp:
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 target.etat.setReseauUp(true);
                 joueur.playCard(index);
                 break;
             case TypeEnum.Para:
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 target.etat.setFeteDeTrop(false);
                 joueur.playCard(index);
                 break;
             case TypeEnum.CoucheTot:
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 target.etat.setCoucheTot(true);
                 joueur.playCard(index);
                 break;
             case TypeEnum.Helico:
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 target.etat.setHelicoptere(true);
                 joueur.playCard(index);
                 break;
             case TypeEnum.SanteDeFer:
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 target.etat.setSanteDeFer(true);
                 joueur.playCard(index);
                 break;
             case TypeEnum.Proxy:
-                var target = this.choseTarget();
+                var target = this.choseTarget(carte);
                 target.etat.setProxy(true);
                 joueur.playCard(index);
                 break;            
