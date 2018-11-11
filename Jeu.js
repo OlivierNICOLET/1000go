@@ -232,7 +232,7 @@ class Jeu{
     choseTarget(card){
         var noPlayerChosen = true;
         while(noPlayerChosen){
-            var index = prompt(`Choisissez le joueur cible de ${card.getNom()}: \n ${this.rappelPoints()}`);
+            var index = prompt(`Choisissez le joueur cible de ${card.getNom()}: \n${this.rappelPoints()}`);
             if(index && this.listeJoueurs[index]){                 
                 noPlayerChosen = true;
                 return this.listeJoueurs[index];
