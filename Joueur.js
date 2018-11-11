@@ -13,6 +13,14 @@ class Joueur{
         console.log(this.pseudo, this.id, this.idNext);
     }
 
+    //
+    isReseauUp(){
+        return this.etat.isReseauUp();
+    }
+
+    isFeteDeTrop(){
+        return this.etat.isFeteDeTrop();
+    }
 
     //
     getPseudo(){
@@ -39,7 +47,8 @@ class Joueur{
     }
 
     addPoints(points){
-        this.comptePoint += points;
+        console.log(this.comptePoints, points);
+        this.comptePoints += points;
     }
 
     //
@@ -54,6 +63,5 @@ class Joueur{
         }
 
         this.cartes = newCartes;
-        return cartePlayed;
     }
 }

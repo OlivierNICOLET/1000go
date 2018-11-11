@@ -79,13 +79,19 @@ class Jeu{
                 this.distributeCard(joueur, this.randCard());
                 etat = EtatTour.Pose;
             case EtatTour.Pose:
-                var card = prompt(`${this.affichagePromptEtatTour(joueur)}`);
-                etat = EtatTour.FinTour;
+                var noCardPlayed = true;
+                while(noCardPlayed){
+                    var index = prompt(`${this.affichagePromptEtatTour(joueur)}`);
+                    if(index && joueur.cartes[index] && this.canPlay(joueur, joueur.cartes[index].getType())){                 
+                        this.play(joueur, index);
+                        etat = EtatTour.FinTour;
+                        noCardPlayed = false;
+                    }
+                }
             case EtatTour.FinTour:
                 etat = null;
                 break;
         }
-        console.log("fin switch");
     }
     //
     affichagePromptEtatTour(joueur){
@@ -108,7 +114,12 @@ class Jeu{
         var rappel = "";
         rappel += "Rappel des points: \n";
         this.listeJoueurs.forEach((joueur) => {
-            rappel += `${joueur.getPseudo()} : ${joueur.getPoints()} Go \n`;
+            rappel += `${joueur.id} : ${joueur.getPseudo()} : ${joueur.getPoints()} Go`;
+            if(joueur.isReseauUp()){
+                rappel += " => Réseau up\n"
+            } else {
+                rappel += "\n";
+            }
         });
 
         return rappel;
@@ -135,5 +146,136 @@ class Jeu{
         joueur.cartes.push(card);
     }
 
+    //
+    choseTarget(){
+        var noPlayerChosen = true;
+        while(noPlayerChosen){
+            var index = prompt(`${this.rappelPoints()}`);
+            if(index && this.listeJoueurs[index]){                 
+                noPlayerChosen = true;
+                return this.listeJoueurs[index];
+            }
+        }        
+    }
+
+    //
+    canPlay(joueur, cardType){
+        if(joueur.isReseauUp()){
+            if(joueur.isFeteDeTrop()){
+                return !(
+                    cardType == TypeEnum.Data75 ||
+                    cardType == TypeEnum.Data100 ||
+                    cardType == TypeEnum.Data200
+                );
+            } else if(
+                joueur.etat.isPanneReveil() ||
+                joueur.etat.isTravauxTram() ||
+                joueur.etat.isMaladie()
+            ){
+                return !(
+                    cardType == TypeEnum.Data25 ||
+                    cardType == TypeEnum.Data50 ||
+                    cardType == TypeEnum.Data75 ||
+                    cardType == TypeEnum.Data100 ||
+                    cardType == TypeEnum.Data200
+                );
+            }
+        } else {
+            return (cardType == TypeEnum.ReseauUp);
+        }
+    }
+
+
+    play(joueur, index){
+        switch(joueur.cartes[index].getType()){
+            case TypeEnum.Data25:
+                joueur.addPoints(25);
+                joueur.playCard(index);
+                break;
+            case TypeEnum.Data50:
+                joueur.addPoints(50);
+                joueur.playCard(index);
+                break;
+            case TypeEnum.Data75:
+                joueur.addPoints(75);
+                joueur.playCard(index);
+                break;
+            case TypeEnum.Data100:
+                joueur.addPoints(100);
+                joueur.playCard(index);
+                break;
+            case TypeEnum.Data200:
+                joueur.addPoints(200);
+                joueur.playCard(index);
+                break;
+            case TypeEnum.PanneReveil:                
+                var target = this.choseTarget();
+                if(!target.etat.isCoucheTot()){
+                    target.etat.setPanneReveil(true);
+                }
+                break;
+            case TypeEnum.TravauxTram:
+                var target = this.choseTarget();
+                if(!target.etat.isHelicotere()){
+                    target.etat.setTravauxTram(true);
+                }
+                break;
+            case TypeEnum.Maladie:
+                var target = this.choseTarget();
+                if(!target.etat.isSanteDeFer()){
+                    target.etat.setMaladie(true);
+                }
+                break;
+            case TypeEnum.ReseauDown:
+                var target = this.choseTarget();
+                if(!target.etat.isProxy()){
+                    target.etat.setReseauUp(false);
+                }
+                break;
+            case TypeEnum.FeteDeTrop:
+                var target = this.choseTarget();
+                if(!target.etat.isProxy()){
+                    target.etat.setFeteDeTrop(true);
+                }
+                break;
+            case TypeEnum.PileAto: 
+                var target = this.choseTarget();
+                target.etat.setPanneReveil(false); 
+                break;
+            case TypeEnum.BusMa:
+                var target = this.choseTarget();
+                target.etat.setTravauxTram(false);
+                break;
+            case TypeEnum.Docteur:
+                var target = this.choseTarget();
+                target.etat.setMaladie(false);
+                break;
+            case TypeEnum.ReseauUp:
+                var target = this.choseTarget();
+                target.etat.setReseauUp(true);
+                break;
+            case TypeEnum.Para:
+                var target = this.choseTarget();
+                target.etat.setFeteDeTrop(false);
+                break;
+            case TypeEnum.CoucheTot:
+                var target = this.choseTarget();
+                target.etat.setCoucheTot(true);
+                break;
+            case TypeEnum.Helico:
+                var target = this.choseTarget();
+                target.etat.setHelico(true);
+                break;
+            case TypeEnum.SanteDeFer:
+                var target = this.choseTarget();
+                target.etat.setSanteDeFer(true);
+                break;
+            case TypeEnum.Proxy:
+                var target = this.choseTarget();
+                target.etat.setProxy(true);
+                break;
+            
+        }
+    }
 
 }
