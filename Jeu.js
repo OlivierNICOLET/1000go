@@ -79,13 +79,28 @@ class Jeu{
                 this.distributeCard(joueur, this.randCard());
                 etat = EtatTour.Pose;
             case EtatTour.Pose:
-                var noCardPlayed = true;
-                while(noCardPlayed){
-                    var index = prompt(`${this.affichagePromptEtatTour(joueur)}`);
-                    if(index && joueur.cartes[index] && this.canPlay(joueur, joueur.cartes[index].getType())){                 
-                        this.play(joueur, index);
-                        etat = EtatTour.FinTour;
-                        noCardPlayed = false;
+                var noCardPlayed = true;                
+                var nCartesJouables = 0;
+                for(var i=0;i<joueur.cartes.length;i++){
+                    if(this.canPlay(joueur, joueur.cartes[i].getType())){
+                        nCartesJouables++;
+                    }
+                }
+                while(noCardPlayed){                    
+                    if(nCartesJouables == 0){
+                        var index = prompt(`${this.affichagePromptEtatTourDefausse(joueur)}`);
+                        if(index && joueur.cartes[index]){                 
+                            this.defausse(joueur, index);
+                            etat = EtatTour.FinTour;
+                            noCardPlayed = false;
+                        }
+                    } else {
+                        var index = prompt(`${this.affichagePromptEtatTourPose(joueur)}`);
+                        if(index && joueur.cartes[index] && this.canPlay(joueur, joueur.cartes[index].getType())){                 
+                            this.play(joueur, index);
+                            etat = EtatTour.FinTour;
+                            noCardPlayed = false;
+                        }
                     }
                 }
             case EtatTour.FinTour:
@@ -94,35 +109,55 @@ class Jeu{
         }
     }
     //
-    affichagePromptEtatTour(joueur){
-        return this.rappelPoints() + this.askJoueurForCard(joueur);
-        
+    affichagePromptEtatTourPose(joueur){
+        return this.rappelPoints() + this.askJoueurForPlayableCard(joueur);        
     }
 
     //
-    askJoueurForCard(joueur){
-        var listeCartes = "";
-        listeCartes += `Veuillez choisir une carte (0,1,...,${joueur.cartes.length}) parmis: \n`;
-        for(var i=0;i<joueur.cartes.length;i++){
-            listeCartes += `${i} : ${joueur.cartes[i].getNom()} \n`;
+    affichagePromptEtatTourDefausse(joueur){
+        return this.rappelPoints() + this.askJoueurForCardDefausse(joueur);        
+    }
+
+    //
+    rappelPoints(){
+        var liste = "";
+        for(var i=0; i < this.nJoueurs; i++){
+            liste += `${this.listeJoueurs[i].id} : ${this.listeJoueurs[i].getPseudo()} : ${this.listeJoueurs[i].getPoints()} Go`;
+            if(this.listeJoueurs[i].isReseauUp()){
+                liste += ` => Réseau up\n`;
+            }else{
+                liste += `\n`;
+            }
         }
 
+        liste += `\n`;
+        return liste;
+    }
+
+    //
+    askJoueurForPlayableCard(joueur){
+        var listeCartes = "";
+        listeCartes += `Veuillez jouer une carte (0,1,...,${joueur.cartes.length - 1}) parmis: \n`;
+        for(var i=0;i<joueur.cartes.length;i++){
+            if(this.canPlay(joueur, joueur.cartes[i].getType())){
+                listeCartes += `${i} : ${joueur.cartes[i].getNom()} \n`;
+            } else {
+                listeCartes += `${i} : ${joueur.cartes[i].getNom()} (Injouable)\n`;
+            }
+        }
+        listeCartes += `\n`;
         return listeCartes;
     }
 
-    rappelPoints(){
-        var rappel = "";
-        rappel += "Rappel des points: \n";
-        this.listeJoueurs.forEach((joueur) => {
-            rappel += `${joueur.id} : ${joueur.getPseudo()} : ${joueur.getPoints()} Go`;
-            if(joueur.isReseauUp()){
-                rappel += " => Réseau up\n"
-            } else {
-                rappel += "\n";
-            }
-        });
-
-        return rappel;
+    //
+    askJoueurForCardDefausse(joueur){
+        var listeCartes = "";
+        listeCartes += `Veuillez défausser une carte (0,1,...,${joueur.cartes.length - 1}) parmis: \n`;
+        for(var i=0;i<joueur.cartes.length;i++){
+            listeCartes += `${i} : ${joueur.cartes[i].getNom()} (Injouable)\n`;
+        }
+        listeCartes += `\n`;
+        return listeCartes;
     }
 
     //
@@ -185,7 +220,6 @@ class Jeu{
         }
     }
 
-
     play(joueur, index){
         switch(joueur.cartes[index].getType()){
             case TypeEnum.Data25:
@@ -212,70 +246,87 @@ class Jeu{
                 var target = this.choseTarget();
                 if(!target.etat.isCoucheTot()){
                     target.etat.setPanneReveil(true);
+                    joueur.playCard(index);
                 }
                 break;
             case TypeEnum.TravauxTram:
                 var target = this.choseTarget();
                 if(!target.etat.isHelicotere()){
                     target.etat.setTravauxTram(true);
+                    joueur.playCard(index);
                 }
                 break;
             case TypeEnum.Maladie:
                 var target = this.choseTarget();
                 if(!target.etat.isSanteDeFer()){
                     target.etat.setMaladie(true);
+                    joueur.playCard(index);
                 }
                 break;
             case TypeEnum.ReseauDown:
                 var target = this.choseTarget();
                 if(!target.etat.isProxy()){
                     target.etat.setReseauUp(false);
+                    joueur.playCard(index);
                 }
                 break;
             case TypeEnum.FeteDeTrop:
                 var target = this.choseTarget();
                 if(!target.etat.isProxy()){
                     target.etat.setFeteDeTrop(true);
+                    joueur.playCard(index);
                 }
                 break;
             case TypeEnum.PileAto: 
                 var target = this.choseTarget();
                 target.etat.setPanneReveil(false); 
+                joueur.playCard(index);
                 break;
             case TypeEnum.BusMa:
                 var target = this.choseTarget();
                 target.etat.setTravauxTram(false);
+                joueur.playCard(index);
                 break;
             case TypeEnum.Docteur:
                 var target = this.choseTarget();
                 target.etat.setMaladie(false);
+                joueur.playCard(index);
                 break;
             case TypeEnum.ReseauUp:
                 var target = this.choseTarget();
                 target.etat.setReseauUp(true);
+                joueur.playCard(index);
                 break;
             case TypeEnum.Para:
                 var target = this.choseTarget();
                 target.etat.setFeteDeTrop(false);
+                joueur.playCard(index);
                 break;
             case TypeEnum.CoucheTot:
                 var target = this.choseTarget();
                 target.etat.setCoucheTot(true);
+                joueur.playCard(index);
                 break;
             case TypeEnum.Helico:
                 var target = this.choseTarget();
                 target.etat.setHelico(true);
+                joueur.playCard(index);
                 break;
             case TypeEnum.SanteDeFer:
                 var target = this.choseTarget();
                 target.etat.setSanteDeFer(true);
+                joueur.playCard(index);
                 break;
             case TypeEnum.Proxy:
                 var target = this.choseTarget();
                 target.etat.setProxy(true);
-                break;
-            
+                joueur.playCard(index);
+                break;            
         }
+    }
+
+    defausse(joueur, index){
+        joueur.playCard(index);
     }
 
 }
