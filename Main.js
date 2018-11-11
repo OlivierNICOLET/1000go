@@ -7,6 +7,5 @@ class Main {
 
         //Lancement de la partie
         jeu.initJeu();
-        jeu.randCard(jeu.pioche);
     }
 }

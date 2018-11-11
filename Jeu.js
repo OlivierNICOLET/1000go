@@ -50,7 +50,7 @@ class Jeu{
         /////////////DISTRIBUTION CARTES////////////////////
         for(var i=0; i < this.nJoueurs; i++){
             for(var j=0; j < this.nCartesMain; j++){
-                this.distributeCard(this.listeJoueurs[i]);
+                this.distributeCard(this.listeJoueurs[i], this.randCard());
             }
         }
 
@@ -74,9 +74,9 @@ class Jeu{
         switch(etat){
             case EtatTour.Transition:
                 alert(`Tour de ${joueur.getPseudo()} \n`);                    
-                etat = EtatTour.Pioche;
-                
+                etat = EtatTour.Pioche;                
             case EtatTour.Pioche:
+                this.distributeCard(joueur, this.randCard());
                 etat = EtatTour.Pose;
             case EtatTour.Pose:
                 var card = prompt(`${this.affichagePromptEtatTour(joueur)}`);
@@ -96,7 +96,7 @@ class Jeu{
     //
     askJoueurForCard(joueur){
         var listeCartes = "";
-        listeCartes += `Veuilley choisir une carte (0,1,...,${joueur.cartes.length}) parmis: \n`;
+        listeCartes += `Veuillez choisir une carte (0,1,...,${joueur.cartes.length}) parmis: \n`;
         for(var i=0;i<joueur.cartes.length;i++){
             listeCartes += `${i} : ${joueur.cartes[i].getNom()} \n`;
         }
@@ -131,7 +131,9 @@ class Jeu{
         return randCard;
     }
 
-    distributeCard(joueur){
-        joueur.cartes.push(this.randCard());
+    distributeCard(joueur, card){
+        joueur.cartes.push(card);
     }
+
+
 }
