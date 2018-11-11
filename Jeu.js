@@ -82,6 +82,7 @@ class Jeu{
 
     tour(joueur){
         var etat = EtatTour.Transition;
+        console.log(this.pioche.length);
         switch(etat){
             case EtatTour.Transition:
                 alert(`Tour de ${joueur.getPseudo()} \n`);                    
@@ -376,6 +377,7 @@ class Jeu{
     }
 
     defausse(joueur, index){
+        this.pioche.push(joueur.cartes[index]);
         joueur.playCard(index);
     }
 
