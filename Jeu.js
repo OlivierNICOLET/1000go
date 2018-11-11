@@ -3,6 +3,7 @@ EtatTour = {
     "Pioche" : 1,
     "Pose" : 2,
     "FinTour" : 3,    
+    "FinDuGame" : 4,    
 }
 
 
@@ -80,13 +81,15 @@ class Jeu{
                 etat = EtatTour.Pose;
             case EtatTour.Pose:
                 var noCardPlayed = true;                
-                var nCartesJouables = 0;
+                var nCartesJouables = 0;      
+
                 for(var i=0;i<joueur.cartes.length;i++){
                     if(this.canPlay(joueur, joueur.cartes[i].getType())){
                         nCartesJouables++;
                     }
-                }
-                while(noCardPlayed){                    
+                }    
+                
+                while(noCardPlayed){                              
                     if(nCartesJouables == 0){
                         var index = prompt(`${this.affichagePromptEtatTourDefausse(joueur)}`);
                         if(index && joueur.cartes[index]){                 
@@ -103,11 +106,23 @@ class Jeu{
                         }
                     }
                 }
+
             case EtatTour.FinTour:
+                if(this.isFinDuGame()){
+                    etat = EtatTour.FinDuGame;
+                    break
+                };
+
                 etat = null;
                 break;
         }
     }
+
+    //
+    isFinDuGame(){
+        return false;
+    }
+
     //
     affichagePromptEtatTourPose(joueur){
         return this.rappelPoints() + this.askJoueurForPlayableCard(joueur);        
@@ -137,7 +152,7 @@ class Jeu{
     //
     askJoueurForPlayableCard(joueur){
         var listeCartes = "";
-        listeCartes += `Veuillez jouer une carte (0,1,...,${joueur.cartes.length - 1}) parmis: \n`;
+        listeCartes += `Veuillez jouer une carte (0,1,...,${joueur.cartes.length - 1}) parmi: \n`;
         for(var i=0;i<joueur.cartes.length;i++){
             if(this.canPlay(joueur, joueur.cartes[i].getType())){
                 listeCartes += `${i} : ${joueur.cartes[i].getNom()} \n`;
@@ -152,7 +167,7 @@ class Jeu{
     //
     askJoueurForCardDefausse(joueur){
         var listeCartes = "";
-        listeCartes += `Veuillez défausser une carte (0,1,...,${joueur.cartes.length - 1}) parmis: \n`;
+        listeCartes += `Veuillez défausser une carte (0,1,...,${joueur.cartes.length - 1}) parmi: \n`;
         for(var i=0;i<joueur.cartes.length;i++){
             listeCartes += `${i} : ${joueur.cartes[i].getNom()} (Injouable)\n`;
         }
@@ -185,7 +200,7 @@ class Jeu{
     choseTarget(){
         var noPlayerChosen = true;
         while(noPlayerChosen){
-            var index = prompt(`${this.rappelPoints()}`);
+            var index = prompt(`Choisissez le joueur cible: \n ${this.rappelPoints()}`);
             if(index && this.listeJoueurs[index]){                 
                 noPlayerChosen = true;
                 return this.listeJoueurs[index];
@@ -214,6 +229,8 @@ class Jeu{
                     cardType == TypeEnum.Data100 ||
                     cardType == TypeEnum.Data200
                 );
+            } else {
+                return true;
             }
         } else {
             return (cardType == TypeEnum.ReseauUp);
