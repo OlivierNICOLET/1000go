@@ -12,6 +12,41 @@ class Etat{
     }  
 
     //
+    showEtat(){
+        var liste = "";
+
+        if(this.isReseauUp()){
+            liste += ` ; Réseau up`;
+        }
+        if(this.isPanneReveil()){
+            liste += ` ; Panne de Réveil`;
+        }
+        if(this.isMaladie()){
+            liste += ` ; Maladie`;
+        }
+        if(this.isTravauxTram()){
+            liste += ` ; Travaux Tramway`;
+        }
+        if(this.isFeteDeTrop()){
+            liste += ` ; Fête de trop`;
+        }
+        if(this.isCoucheTot()){
+            liste += ` ; Couche tôt`;
+        }
+        if(this.isHelicoptere()){
+            liste += ` ; Hélicoptère`;
+        }
+        if(this.isSanteDeFer()){
+            liste += ` ; Santé de fer`;
+        }
+        if(this.isProxy()){
+            liste += ` ; Proxy`;
+        }
+
+        return liste;
+    }
+
+    //
     isReseauUp(){
         return this.reseauUp;
     }

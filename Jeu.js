@@ -164,12 +164,8 @@ class Jeu{
     rappelPoints(){
         var liste = "";
         for(var i=0; i < this.nJoueurs; i++){
-            liste += `${this.listeJoueurs[i].id} : ${this.listeJoueurs[i].getPseudo()} : ${this.listeJoueurs[i].getPoints()} Go`;
-            if(this.listeJoueurs[i].isReseauUp()){
-                liste += ` => Réseau up\n`;
-            }else{
-                liste += `\n`;
-            }
+            liste += `${this.listeJoueurs[i].id} : ${this.listeJoueurs[i].getPseudo()} : ${this.listeJoueurs[i].getPoints()} Go${this.listeJoueurs[i].etat.showEtat()}`;
+            liste += `\n`;
         }
 
         liste += `\n`;
