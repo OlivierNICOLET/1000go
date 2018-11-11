@@ -17,7 +17,9 @@ class Jeu{
         this.nJoueurs = 6;
         this.joueurActif = 0;
         this.nCartesMain = 6;
+        this.scoreVictoire = 100;
         this.jeuEnCours = true;
+        this.gagnant = "";
     }
 
 
@@ -60,6 +62,8 @@ class Jeu{
             this.tour(this.listeJoueurs[this.joueurActif]);
             this.changementJoueur();
         }
+
+        alert(`Le gagnant est ${this.gagnant}`);
         
     }
 
@@ -109,7 +113,7 @@ class Jeu{
 
             case EtatTour.FinTour:
                 if(this.isFinDuGame()){
-                    etat = EtatTour.FinDuGame;
+                    this.jeuEnCours = false;
                     break
                 };
 
@@ -120,7 +124,30 @@ class Jeu{
 
     //
     isFinDuGame(){
-        return false;
+        var finDuGame = false;
+        var maxPoint = 0;
+        var maxIndex = 0;
+
+        for(var i=0; i < this.nJoueurs; i++){
+            if(this.listeJoueurs[i].getPoints() >= this.scoreVictoire){
+                this.gagnant = this.listeJoueurs[i].getPseudo();
+                finDuGame = true;
+                break;
+            }            
+        }
+
+        if(this.pioche.length == 0){
+            for(var i=0; i < this.nJoueurs; i++){
+                if(this.listeJoueurs[i].getPoints() > maxPoint){
+                    maxPoint = this.listeJoueurs[i].getPoints();
+                    maxIndex = i;
+                }            
+            }
+            this.gagnant = this.gagnant = this.listeJoueurs[maxIndex].getPseudo();
+            finDuGame = true;
+        }
+
+        return finDuGame;
     }
 
     //
@@ -326,7 +353,7 @@ class Jeu{
                 break;
             case TypeEnum.Helico:
                 var target = this.choseTarget();
-                target.etat.setHelico(true);
+                target.etat.setHelicoptere(true);
                 joueur.playCard(index);
                 break;
             case TypeEnum.SanteDeFer:

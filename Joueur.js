@@ -47,7 +47,6 @@ class Joueur{
     }
 
     addPoints(points){
-        console.log(this.comptePoints, points);
         this.comptePoints += points;
     }
 
