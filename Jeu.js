@@ -8,8 +8,6 @@ EtatTour = {
 
 
 class Jeu{
-
-
     constructor(){        
         this.piocheHandler = new PiocheHandler();    
         this.pioche = [];
@@ -21,6 +19,7 @@ class Jeu{
         this.jeuEnCours = true;
         this.gagnant = "";
         this.nomsJoueurs = [];
+        this.nomIa = "Terminator";
     }
 
 
@@ -35,20 +34,29 @@ class Jeu{
         */
 
         ///////////GENERATION JOUEURS////////////////////
-        this.nJoueurs = prompt("Veuillez entrer le nombre de joueurs (EN CHIFFRE STP): \n");
+        this.nJoueurs = prompt("Veuillez entrer le nombre de joueurs (1 pour jouer contre l'IA): \n");
 
-        for (var i = 0; i < this.nJoueurs; i++){
-            this.nomsJoueurs.push(prompt(`Veuillez entrer le nom du joueur ${i}\n`));
+        if(this.nJoueurs == 1){
+            this.listeJoueurs.push(new Joueur(this.nomIa, 0, 1, true));
+            this.nomsJoueurs.push(prompt(`Veuillez entrer le nom du joueur 1\n`));
+            this.listeJoueurs.push(new Joueur(this.nomsJoueurs[0], 1, 0, false));
+        } else {
+            for (var i = 0; i < this.nJoueurs; i++){
+                this.nomsJoueurs.push(prompt(`Veuillez entrer le nom du joueur ${i}\n`));
+            }
+            for(var i=0; i < this.nJoueurs; i++){
+                if(i == this.nJoueurs - 1){
+                    this.listeJoueurs.push(new Joueur(this.nomsJoueurs[i], i, 0, false));
+                    break;
+                }
+                this.listeJoueurs.push(new Joueur(this.nomsJoueurs[i], i, i+1, false));            
+            }
         }
                 
-
-        for(var i=0; i < this.nJoueurs; i++){
-            if(i == this.nJoueurs - 1){
-                this.listeJoueurs.push(new Joueur(this.nomsJoueurs[i], i, 0));
-                break;
-            }
-            this.listeJoueurs.push(new Joueur(this.nomsJoueurs[i], i, i+1));            
+        if(this.nJoueurs == 1){
+            this.nJoueurs = 2;
         }
+        
 
         /*
         for(var i = 0; i < this.listeJoueurs.length; i++){
@@ -65,8 +73,13 @@ class Jeu{
 
         /////////////DEROULEMENT JEU//////////////////////
         while(this.jeuEnCours){
-            this.tour(this.listeJoueurs[this.joueurActif]);
-            this.changementJoueur();
+            if(!this.listeJoueurs[this.joueurActif].isIa()){
+                this.tour(this.listeJoueurs[this.joueurActif]);
+                this.changementJoueur();
+            } else {
+                this.tourIa(this.listeJoueurs[this.joueurActif]);
+                this.changementJoueur();
+            }
         }
 
         alert(`Le gagnant est ${this.gagnant}`);
@@ -78,11 +91,53 @@ class Jeu{
         this.joueurActif = this.listeJoueurs[this.joueurActif].idNext;
     }
 
-    
+    tourIa(joueur){
+        var etat = EtatTour.Transition;
+        switch(etat){
+            case EtatTour.Transition:                  
+                etat = EtatTour.Pioche;                
+            case EtatTour.Pioche:
+                this.distributeCard(joueur, this.randCard());
+                etat = EtatTour.Pose;
+            case EtatTour.Pose:
+                var noCardPlayed = true;                
+                var nCartesJouables = 0;
+                var indexJouables = [];      
+
+                for(var i=0;i<joueur.cartes.length;i++){
+                    if(this.canPlay(joueur, joueur.cartes[i].getType())){
+                        nCartesJouables++;
+                        indexJouables.push(i);
+                    }
+                }    
+                
+                while(noCardPlayed){                              
+                    if(nCartesJouables == 0){
+                        var randomized = Math.floor(Math.random() * Math.floor(joueur.cartes.length-1));
+                        this.defausse(joueur, randomized);
+                        etat = EtatTour.FinTour;
+                        noCardPlayed = false;
+                    } else {                        
+                        var randomized = Math.floor(Math.random() * Math.floor(indexJouables.length-1));
+                        this.play(joueur, randomized);
+                        etat = EtatTour.FinTour;
+                        noCardPlayed = false;
+                    }
+                }
+
+            case EtatTour.FinTour:
+                if(this.isFinDuGame()){
+                    this.jeuEnCours = false;
+                    break
+                };
+
+                etat = null;
+                break;
+        }
+    }
 
     tour(joueur){
         var etat = EtatTour.Transition;
-        console.log(this.pioche.length);
         switch(etat){
             case EtatTour.Transition:
                 alert(`Tour de ${joueur.getPseudo()} \n`);                    
@@ -102,14 +157,14 @@ class Jeu{
                 
                 while(noCardPlayed){                              
                     if(nCartesJouables == 0){
-                        var index = prompt(`${this.affichagePromptEtatTourDefausse(joueur)}`);
+                        var index = prompt(`${this.affichageTourJoueur(joueur)}${this.affichagePromptEtatTourDefausse(joueur)}`);
                         if(index && joueur.cartes[index]){                 
                             this.defausse(joueur, index);
                             etat = EtatTour.FinTour;
                             noCardPlayed = false;
                         }
                     } else {
-                        var index = prompt(`${this.affichagePromptEtatTourPose(joueur)}`);
+                        var index = prompt(`${this.affichageTourJoueur(joueur)}${this.affichagePromptEtatTourPose(joueur)}`);
                         if(index && joueur.cartes[index] && this.canPlay(joueur, joueur.cartes[index].getType())){                 
                             this.play(joueur, index);
                             etat = EtatTour.FinTour;
@@ -155,6 +210,13 @@ class Jeu{
         }
 
         return finDuGame;
+    }
+
+    //
+    affichageTourJoueur(joueur){
+        var txt = "";
+        txt += `**** Tour de ${joueur.getPseudo()} ****\n`;
+        return txt;
     }
 
     //
@@ -232,13 +294,17 @@ class Jeu{
     //
     choseTarget(card){
         var noPlayerChosen = true;
-        while(noPlayerChosen){
-            var index = prompt(`Choisissez le joueur cible de ${card.getNom()}: \n${this.rappelPoints()}`);
-            if(index && this.listeJoueurs[index]){                 
-                noPlayerChosen = true;
-                return this.listeJoueurs[index];
-            }
-        }        
+        if(this.listeJoueurs[this.joueurActif].isIa()){
+            return this.listeJoueurs[Math.floor(Math.random() * Math.floor(this.listeJoueurs.length - 1))];
+        } else {
+            while(noPlayerChosen){
+                var index = prompt(`${this.affichageTourJoueur(this.listeJoueurs[this.joueurActif])}Choisissez le joueur cible de ${card.getNom()}: \n${this.rappelPoints()}`);
+                if(index && this.listeJoueurs[index]){                 
+                    noPlayerChosen = true;
+                    return this.listeJoueurs[index];
+                }
+            }    
+        }    
     }
 
     //
@@ -271,6 +337,11 @@ class Jeu{
     }
 
     play(joueur, index){
+
+        if(joueur.isIa()){
+            console.log(joueur.cartes[index]);
+        }
+
         var carte = joueur.cartes[index];
         switch(carte.getType()){
             case TypeEnum.Data25:

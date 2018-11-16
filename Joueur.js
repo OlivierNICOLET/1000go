@@ -1,16 +1,27 @@
 class Joueur{
-    constructor(pseudo_, id_, idNext_){
+    constructor(pseudo_, id_, idNext_, ia_){
         this.id = id_;
         this.pseudo = pseudo_;
         this.etat = new Etat();
         this.cartes = [];
         this.idNext = idNext_;
         this.comptePoints = 0;
+        this.ia = ia_;
+    }
+
+    //
+    isIa(){
+        return this.ia;
+    }
+
+    //
+    getIdNext(){
+        return this.idNext;
     }
 
     //
     afficherJoueur(){
-        console.log(this.pseudo, this.id, this.idNext);
+        console.log(this.pseudo, this.id, this.idNext, this.ia);
     }
 
     //
