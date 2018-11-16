@@ -119,6 +119,14 @@ class Jeu{
                         noCardPlayed = false;
                     } else {                        
                         var randomized = Math.floor(Math.random() * Math.floor(indexJouables.length-1));
+                        if(
+                            joueur.cartes[randomized].getType() == TypeEnum.Para ||
+                            joueur.cartes[randomized].getType() == TypeEnum.Helico ||
+                            joueur.cartes[randomized].getType() == TypeEnum.CoucheTot ||
+                            joueur.cartes[randomized].getType() == TypeEnum.SanteDeFer 
+                        ){                                
+                            this.distributeCard(joueur, this.randCard());
+                        }
                         this.play(joueur, randomized);
                         etat = EtatTour.FinTour;
                         noCardPlayed = false;
@@ -158,14 +166,22 @@ class Jeu{
                 while(noCardPlayed){                              
                     if(nCartesJouables == 0){
                         var index = prompt(`${this.affichageTourJoueur(joueur)}${this.affichagePromptEtatTourDefausse(joueur)}`);
-                        if(index && joueur.cartes[index]){                 
+                        if(index && joueur.cartes[index]){
                             this.defausse(joueur, index);
                             etat = EtatTour.FinTour;
                             noCardPlayed = false;
                         }
                     } else {
                         var index = prompt(`${this.affichageTourJoueur(joueur)}${this.affichagePromptEtatTourPose(joueur)}`);
-                        if(index && joueur.cartes[index] && this.canPlay(joueur, joueur.cartes[index].getType())){                 
+                        if(index && joueur.cartes[index] && this.canPlay(joueur, joueur.cartes[index].getType())){  
+                            if(
+                                joueur.cartes[index].getType() == TypeEnum.Para ||
+                                joueur.cartes[index].getType() == TypeEnum.Helico ||
+                                joueur.cartes[index].getType() == TypeEnum.CoucheTot ||
+                                joueur.cartes[index].getType() == TypeEnum.SanteDeFer 
+                            ){                                
+                                this.distributeCard(joueur, this.randCard());
+                            }               
                             this.play(joueur, index);
                             etat = EtatTour.FinTour;
                             noCardPlayed = false;
