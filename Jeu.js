@@ -19,7 +19,7 @@ class Jeu{
         this.jeuEnCours = true;
         this.gagnant = "";
         this.nomsJoueurs = [];
-        this.nomIa = "Terminator";
+        this.nomIa = "Yu-Gi-Oh";
     }
 
 
