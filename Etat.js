@@ -1,5 +1,5 @@
 class Etat{
-    constructor(){
+    constructor(){ //Liste des états d'un joueur
         this.reseauUp = false;
         this.panneReveil = false;
         this.travauxTram = false;
@@ -12,7 +12,7 @@ class Etat{
     }  
 
     //
-    showEtat(){
+    showEtat(){ //Méthode pour l'affichage des états dans le rappel des scores
         var liste = "";
 
         if(this.isReseauUp()){
@@ -45,6 +45,8 @@ class Etat{
 
         return liste;
     }
+
+    //Liste de getter et setter pour les états
 
     //
     isReseauUp(){

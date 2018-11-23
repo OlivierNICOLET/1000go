@@ -1,8 +1,10 @@
 class PiocheHandler {    
 
     constructor() {
+        
+        this.carteHandler = new CarteHandler(); //La pioche utilise un générateur de carte pour se remplir
 
-        this.carteHandler = new CarteHandler();
+        //Liste du nombre de chaque type de carte dans la pioche
         //n Datas
         this.n25go = 10;
         this.n50go = 10;
@@ -35,6 +37,8 @@ class PiocheHandler {
 
 
     generatePioche(){
+        //Génération de toutes les cartes et ajout dans la pioche pour tous les types
+
         //Generation datas
         for(var i = 0; i < this.n25go; i++){
             this.pioche.push(this.carteHandler.createData25());

@@ -9,6 +9,8 @@ class Joueur{
         this.ia = ia_;
     }
 
+    //Liste de getter et setter pour le joueur
+
     //
     isIa(){
         return this.ia;
@@ -61,8 +63,7 @@ class Joueur{
         this.comptePoints += points;
     }
 
-    //
-    playCard(index){
+    playCard(index){ //Lorsqu'on joue une carte, on la retire de la main du joueur, et met à jour dynamiquement la main du joueur
         var cartePlayed = this.cartes[index];
         this.cartes[index] = null;
         var newCartes = [];

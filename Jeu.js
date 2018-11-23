@@ -1,4 +1,4 @@
-EtatTour = {
+EtatTour = { //Enum des états de la machine à état du tour
     "Transition" : 0,
     "Pioche" : 1,
     "Pose" : 2,
@@ -9,17 +9,17 @@ EtatTour = {
 
 class Jeu{
     constructor(){        
-        this.piocheHandler = new PiocheHandler();    
-        this.pioche = [];
-        this.listeJoueurs = [];
-        this.nJoueurs = 6;
-        this.joueurActif = 0;
-        this.nCartesMain = 6;
-        this.scoreVictoire = 1000;
-        this.jeuEnCours = true;
-        this.gagnant = "";
-        this.nomsJoueurs = [];
-        this.nomIa = "Yu-Gi-Oh";
+        this.piocheHandler = new PiocheHandler(); //Générateur de pioche
+        this.pioche = []; //Pioche contenant toutes les cartes du jeu
+        this.listeJoueurs = []; //Liste des joueurs
+        this.nJoueurs = 0; //Nombre de joueurs dans la partie
+        this.joueurActif = 0; //Id du joueur actif
+        this.nCartesMain = 6; //Nombre de carte au départ dans la main
+        this.scoreVictoire = 1000; //Score de victoire
+        this.jeuEnCours = true; //Condition pour continuer la partie
+        this.gagnant = ""; //Nom du gagnant
+        this.nomsJoueurs = []; //Noms des joueurs
+        this.nomIa = "Yu-Gi-Oh"; //Nom de l'IA
     }
 
 
@@ -27,17 +27,12 @@ class Jeu{
 
         ///////////GENERATION PIOCHE/////////////////////
         this.pioche = this.piocheHandler.generatePioche();
-       /* 
-       for(var i=0; i < this.pioche.length; i++){
-            this.pioche[i].afficherCarte();
-        }
-        */
-
+       
         ///////////GENERATION JOUEURS////////////////////
-        this.nJoueurs = prompt("Veuillez entrer le nombre de joueurs (1 pour jouer contre l'IA): \n");
+        this.nJoueurs = prompt("Veuillez entrer le nombre de joueurs (1 pour jouer contre l'IA): \n"); 
 
         if(this.nJoueurs == 1){
-            this.listeJoueurs.push(new Joueur(this.nomIa, 0, 1, true));
+            this.listeJoueurs.push(new Joueur(this.nomIa, 0, 1, true)); //Si on joue contre l'IA, on crée un joueur qui aura son booléen ia à true
             this.nomsJoueurs.push(prompt(`Veuillez entrer le nom du joueur 1\n`));
             this.listeJoueurs.push(new Joueur(this.nomsJoueurs[0], 1, 0, false));
         } else {
@@ -53,66 +48,59 @@ class Jeu{
             }
         }
                 
-        if(this.nJoueurs == 1){
+        if(this.nJoueurs == 1){ //Si on joue contre une IA, il y a 2 joueurs (joueur + ia)
             this.nJoueurs = 2;
         }
         
-
-        /*
-        for(var i = 0; i < this.listeJoueurs.length; i++){
-            this.listeJoueurs[i].afficherJoueur();
-        }
-        */
-
         /////////////DISTRIBUTION CARTES////////////////////
         for(var i=0; i < this.nJoueurs; i++){
             for(var j=0; j < this.nCartesMain; j++){
-                this.distributeCard(this.listeJoueurs[i], this.randCard());
+                this.distributeCard(this.listeJoueurs[i], this.randCard()); //On distribue au joueur une carte aléatoire de la pioche
             }
         }
 
         /////////////DEROULEMENT JEU//////////////////////
-        while(this.jeuEnCours){
-            if(!this.listeJoueurs[this.joueurActif].isIa()){
+        while(this.jeuEnCours){ // Tant que la partie continue, on enchaine les tours
+            if(!this.listeJoueurs[this.joueurActif].isIa()){ // On regarde si le joueur est une IA
                 this.tour(this.listeJoueurs[this.joueurActif]);
-                this.changementJoueur();
+                this.changementJoueur(); //On passe au joueur suivant
             } else {
                 this.tourIa(this.listeJoueurs[this.joueurActif]);
                 this.changementJoueur();
             }
         }
 
-        alert(`Le gagnant est ${this.gagnant}`);
+        alert(`Le gagnant est ${this.gagnant}`); //Une fois la partie déterminée on affiche le gagnant
         
     }
 
-    //
-    changementJoueur(){
+   
+    changementJoueur(){ //Le joueur actif devient le joueur suivant
         this.joueurActif = this.listeJoueurs[this.joueurActif].idNext;
     }
 
-    tourIa(joueur){
+    tourIa(joueur){ //Déroulement du tour pour une IA
         var etat = EtatTour.Transition;
         switch(etat){
             case EtatTour.Transition:                  
                 etat = EtatTour.Pioche;                
             case EtatTour.Pioche:
-                this.distributeCard(joueur, this.randCard());
+                this.distributeCard(joueur, this.randCard()); //Le joueur pioche une carte aléatoire
                 etat = EtatTour.Pose;
             case EtatTour.Pose:
                 var noCardPlayed = true;                
                 var nCartesJouables = 0;
                 var indexJouables = [];      
 
-                for(var i=0;i<joueur.cartes.length;i++){
+                for(var i=0;i<joueur.cartes.length;i++){ //Pour toutes les cartes de la main, on détermine si elle est jouable ou non
                     if(this.canPlay(joueur, joueur.cartes[i].getType())){
                         nCartesJouables++;
                         indexJouables.push(i);
                     }
                 }    
                 
-                while(noCardPlayed){                              
-                    if(nCartesJouables == 0){
+                while(noCardPlayed){ //Tant qu'aucun choix n'a été fait, on demande au joueur de prendre une décision                             
+                    if(nCartesJouables == 0){ //Si aucune carte jouable, l'IA choisit une carte à défausser, aléatoirement
                         var randomized = Math.floor(Math.random() * Math.floor(joueur.cartes.length-1));
                         this.defausse(joueur, randomized);
                         etat = EtatTour.FinTour;
@@ -125,16 +113,16 @@ class Jeu{
                             joueur.cartes[randomized].getType() == TypeEnum.CoucheTot ||
                             joueur.cartes[randomized].getType() == TypeEnum.SanteDeFer 
                         ){                                
-                            this.distributeCard(joueur, this.randCard());
+                            this.distributeCard(joueur, this.randCard()); //Si l'IA a joué une carte d'immunité, elle pioche une carte
                         }
-                        this.play(joueur, randomized);
+                        this.play(joueur, randomized); //L'ia joue la carte et la retire de sa main
                         etat = EtatTour.FinTour;
                         noCardPlayed = false;
                     }
                 }
 
             case EtatTour.FinTour:
-                if(this.isFinDuGame()){
+                if(this.isFinDuGame()){ //On vérifie si une condition de fin de jeu est réalisé
                     this.jeuEnCours = false;
                     break
                 };
@@ -144,21 +132,21 @@ class Jeu{
         }
     }
 
-    tour(joueur){
+    tour(joueur){ //Tour d'un joueur
         var etat = EtatTour.Transition;
         switch(etat){
             case EtatTour.Transition:
-                alert(`Tour de ${joueur.getPseudo()} \n`);                    
+                alert(`Tour de ${joueur.getPseudo()} \n`); //On affiche quel joueur doit jouer                    
                 etat = EtatTour.Pioche;                
             case EtatTour.Pioche:
-                this.distributeCard(joueur, this.randCard());
+                this.distributeCard(joueur, this.randCard()); //Pioche d'une carte aléatoire
                 etat = EtatTour.Pose;
             case EtatTour.Pose:
                 var noCardPlayed = true;                
                 var nCartesJouables = 0;      
 
                 for(var i=0;i<joueur.cartes.length;i++){
-                    if(this.canPlay(joueur, joueur.cartes[i].getType())){
+                    if(this.canPlay(joueur, joueur.cartes[i].getType())){ //Vérification de la jouabilité des cartes
                         nCartesJouables++;
                     }
                 }    
@@ -166,7 +154,7 @@ class Jeu{
                 while(noCardPlayed){                              
                     if(nCartesJouables == 0){
                         var index = prompt(`${this.affichageTourJoueur(joueur)}${this.affichagePromptEtatTourDefausse(joueur)}`);
-                        if(index && joueur.cartes[index]){
+                        if(index && joueur.cartes[index]){ //Si aucune carte jouable, on demande au joueur de défausser une carte
                             this.defausse(joueur, index);
                             etat = EtatTour.FinTour;
                             noCardPlayed = false;
@@ -180,9 +168,9 @@ class Jeu{
                                 joueur.cartes[index].getType() == TypeEnum.CoucheTot ||
                                 joueur.cartes[index].getType() == TypeEnum.SanteDeFer 
                             ){                                
-                                this.distributeCard(joueur, this.randCard());
+                                this.distributeCard(joueur, this.randCard()); //Si le joueur joue une carte d'immunité, il pioche
                             }               
-                            this.play(joueur, index);
+                            this.play(joueur, index); //Le joueur joue sa carte et la retire de sa main
                             etat = EtatTour.FinTour;
                             noCardPlayed = false;
                         }
@@ -190,7 +178,7 @@ class Jeu{
                 }
 
             case EtatTour.FinTour:
-                if(this.isFinDuGame()){
+                if(this.isFinDuGame()){ //Vérification des conditions de fin de jeu
                     this.jeuEnCours = false;
                     break
                 };
@@ -200,53 +188,52 @@ class Jeu{
         }
     }
 
-    //
-    isFinDuGame(){
+ 
+    isFinDuGame(){ // Vérification des conditions de fin de jeu
         var finDuGame = false;
         var maxPoint = 0;
         var maxIndex = 0;
 
         for(var i=0; i < this.nJoueurs; i++){
-            if(this.listeJoueurs[i].getPoints() >= this.scoreVictoire){
+            if(this.listeJoueurs[i].getPoints() >= this.scoreVictoire){ //Si un joueur à plus que le score minimum de victoire, il est décalaré gagnant
                 this.gagnant = this.listeJoueurs[i].getPseudo();
                 finDuGame = true;
                 break;
             }            
         }
 
-        if(this.pioche.length == 0){
-            for(var i=0; i < this.nJoueurs; i++){
+        if(this.pioche.length == 0){ //Si la picohe est vide
+            for(var i=0; i < this.nJoueurs; i++){ 
                 if(this.listeJoueurs[i].getPoints() > maxPoint){
                     maxPoint = this.listeJoueurs[i].getPoints();
                     maxIndex = i;
                 }            
             }
-            this.gagnant = this.gagnant = this.listeJoueurs[maxIndex].getPseudo();
+            this.gagnant = this.gagnant = this.listeJoueurs[maxIndex].getPseudo(); //Le joueur avec le plus grand score gagne
             finDuGame = true;
         }
 
         return finDuGame;
     }
 
-    //
-    affichageTourJoueur(joueur){
+    
+    affichageTourJoueur(joueur){ //Affichage du joueur courant
         var txt = "";
         txt += `**** Tour de ${joueur.getPseudo()} ****\n`;
         return txt;
     }
 
-    //
-    affichagePromptEtatTourPose(joueur){
+   
+    affichagePromptEtatTourPose(joueur){ //Affichage des scores et demande au joueur de jouer une carte
         return this.rappelPoints() + this.askJoueurForPlayableCard(joueur);        
     }
 
-    //
-    affichagePromptEtatTourDefausse(joueur){
+   
+    affichagePromptEtatTourDefausse(joueur){ //Affichage des scores et demande au joueur de défausser une carte
         return this.rappelPoints() + this.askJoueurForCardDefausse(joueur);        
     }
-
-    //
-    rappelPoints(){
+    
+    rappelPoints(){ //Affichage des points et des états de chaque joueur
         var liste = "";
 
         liste += `Scores et états:\n`;
@@ -260,9 +247,8 @@ class Jeu{
         return liste;
     }
 
-    //
-    askJoueurForPlayableCard(joueur){
-        var listeCartes = "";
+    askJoueurForPlayableCard(joueur){ //Affichage de la main et de la jouabilité de chaque carte
+    var listeCartes = "";             //Demande à l'usager de jouer une carte
         listeCartes += `Veuillez jouer une carte (0,1,...,${joueur.cartes.length - 1}) parmi: \n`;
         for(var i=0;i<joueur.cartes.length;i++){
             if(this.canPlay(joueur, joueur.cartes[i].getType())){
@@ -275,9 +261,9 @@ class Jeu{
         return listeCartes;
     }
 
-    //
-    askJoueurForCardDefausse(joueur){
-        var listeCartes = "";
+    
+    askJoueurForCardDefausse(joueur){//Affichage de la main et de la jouabilité de chaque carte
+        var listeCartes = "";        //Demande à l'usager de défausser une carte
         listeCartes += `Veuillez défausser une carte (0,1,...,${joueur.cartes.length - 1}) parmi: \n`;
         for(var i=0;i<joueur.cartes.length;i++){
             listeCartes += `${i} : ${joueur.cartes[i].getNom()} (Injouable)\n`;
@@ -286,8 +272,8 @@ class Jeu{
         return listeCartes;
     }
 
-    //
-    randCard(){
+    
+    randCard(){ //Génération d'un index aléatoire pour la pioche
         var randIndex = Math.floor(Math.random() * Math.floor(this.pioche.length - 1));
         var randCard = this.pioche[randIndex];
         this.pioche[randIndex] = null;
@@ -303,13 +289,12 @@ class Jeu{
         return randCard;
     }
 
-    distributeCard(joueur, card){
+    distributeCard(joueur, card){ //Le joueur pioche une carte
         joueur.cartes.push(card);
     }
-
-    //
-    choseTarget(card){
-        var noPlayerChosen = true;
+    
+    choseTarget(card){ //Affichage des adversaire et de leurs états, et demande au joueur de choisir une cible pour sa carte
+        var noPlayerChosen = true; 
         if(this.listeJoueurs[this.joueurActif].isIa()){
             return this.listeJoueurs[Math.floor(Math.random() * Math.floor(this.listeJoueurs.length - 1))];
         } else {
@@ -323,8 +308,7 @@ class Jeu{
         }    
     }
 
-    //
-    canPlay(joueur, cardType){
+    canPlay(joueur, cardType){ //Détermination de la jouabilité d'une carte par un joueur, en se basant sur son état
         if(joueur.isReseauUp()){
             if(joueur.isFeteDeTrop()){
                 return !(
@@ -352,15 +336,10 @@ class Jeu{
         }
     }
 
-    play(joueur, index){
-
-        if(joueur.isIa()){
-            console.log(joueur.cartes[index]);
-        }
-
+    play(joueur, index){ //Application des effets de la carte jouée
         var carte = joueur.cartes[index];
         switch(carte.getType()){
-            case TypeEnum.Data25:
+            case TypeEnum.Data25: //Pour les cartes de transferts, on met à jour le compte de point du joueur
                 joueur.addPoints(25);
                 joueur.playCard(index);
                 break;
@@ -380,7 +359,7 @@ class Jeu{
                 joueur.addPoints(200);
                 joueur.playCard(index);
                 break;
-            case TypeEnum.PanneReveil:                
+            case TypeEnum.PanneReveil: //Pour les cartes d'attaque, on choisit une cible et on applique les effets               
                 var target = this.choseTarget(carte);
                 if(!target.etat.isCoucheTot()){
                     target.etat.setPanneReveil(true);
@@ -415,7 +394,7 @@ class Jeu{
                     joueur.playCard(index);
                 }
                 break;
-            case TypeEnum.PileAto: 
+            case TypeEnum.PileAto: //Pour les cartes de défense et d'immunité, on choisit une cible et on retire les effets
                 var target = this.choseTarget(carte);
                 target.etat.setPanneReveil(false); 
                 joueur.playCard(index);
@@ -463,7 +442,7 @@ class Jeu{
         }
     }
 
-    defausse(joueur, index){
+    defausse(joueur, index){ //Quand on se défausse d'une carte, on remet la carte dans la pioche
         this.pioche.push(joueur.cartes[index]);
         joueur.playCard(index);
     }

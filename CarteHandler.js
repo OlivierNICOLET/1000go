@@ -1,4 +1,4 @@
-TypeEnum = {
+TypeEnum = { //Enumération des types des cartes
     "Data25" : 1,
     "Data50" : 2,
     "Data75" : 3,
@@ -20,7 +20,9 @@ TypeEnum = {
     "Proxy" : 19,
 }
 
-class CarteHandler {
+class CarteHandler { //Le CarteHandler est une Factory de Carte
+
+    //Méthodes de création des cartes
 
     //Data
     createData25(){

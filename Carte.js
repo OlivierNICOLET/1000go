@@ -4,6 +4,8 @@ class Carte {
         this.nom = nom_;
     }
 
+    //Liste de getter et setter pour une carte
+
     afficherCarte() {
         console.log(this.nom);
     }

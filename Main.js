@@ -1,7 +1,5 @@
 class Main {
     start() {
-        console.log("LE 1000 Go: ");
-
         //Création de la partie
         var jeu = new Jeu();
 
